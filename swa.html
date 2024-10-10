@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <script src="https://ssl.p.jwpcdn.com/player/v/8.36.2/jwplayer.js"></script>
+    <script>
+        jwplayer.key = 'cLGMn8T20tGvW+0eXPhq4NNmLB57TrscPjd1IyJF84o=';
+    </script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+
+        #player {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #000;
+        }
+
+        /* Custom player styles */
+        .jw-title-primary {
+            font-weight: bold;
+            font-size: 1.5em;
+            color: #ff6347 !important;
+        }
+
+        .jwplayer .jw-progress {
+            background-color: #ff6347 !important;
+        }
+
+        .jwplayer .jw-text-time {
+            color: #ff6347 !important;
+        }
+
+        .jwplayer .jw-button:hover {
+            background: #ff6347 !important;
+        }
+
+        .jw-rightclick .jw-reset {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="player"></div>
+
+    <script>
+        var jwp = jwplayer('player');
+        var pageUrl = window.location.href; // Get the page URL
+        var playbackKey = `jwplayer-playback-position-${pageUrl}`; // Key to store playback position for the current page
+
+        // Load saved position from local storage
+        var savedPosition = localStorage.getItem(playbackKey);
+
+        jwp.setup({
+            aspectratio: "16:9",
+            width: "100%",
+            height: "100%",
+            sources: [{
+                file: "https://pothabattulavinod.github.io/bb/Srimanthudu.m3u8",
+                type: "mp4",
+                default: true
+            }],
+            image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQEcvHCkJZMTa1C4KiRemjH3etIWjkYsZEKuSn5ILGn0rXAkuaU218_fo&s=10",
+            primary: "html5",
+            preload: "auto",
+            title: "09 OCT 2024",
+            bufferLength: 5,
+            hlshtml: true,
+            controls: true,
+            displayPlaybackLabel: false,
+            playbackRateControls: true,
+            liveTimeout: 2,
+            dvrSeekLimit: 60,
+            dvrWindow: 3600,
+
+            logo: {
+                file: "",
+                position: "top-right",
+                margin: 10,
+                link: "",
+                hide: false,
+                width: 100,
+                height: 50
+            }
+        });
+
+        jwp.on('ready', function () {
+            // Seek to the saved position if available
+            if (savedPosition && !isNaN(savedPosition)) {
+                jwp.seek(parseFloat(savedPosition));
+            }
+
+            const playerContainer = document.querySelector('#player');
+
+            // Display icon
+            const rewindContainer = playerContainer.querySelector('.jw-display-icon-rewind');
+            const forwardContainer = rewindContainer.cloneNode(true);
+            const forwardDisplayButton = forwardContainer.querySelector('.jw-icon-rewind');
+            forwardDisplayButton.style.transform = "scaleX(-1)";
+            forwardDisplayButton.ariaLabel = "Forward 10 Seconds";
+            const nextContainer = playerContainer.querySelector('.jw-display-icon-next');
+            nextContainer.parentNode.insertBefore(forwardContainer, nextContainer);
+
+            // Control bar icon
+            playerContainer.querySelector('.jw-display-icon-next').style.display = 'none'; // Hide next button
+            const buttonContainer = playerContainer.querySelector('.jw-button-container');
+            const rewindControlBarButton = buttonContainer.querySelector(".jw-icon-rewind");
+            const forwardControlBarButton = rewindControlBarButton.cloneNode(true);
+            forwardControlBarButton.style.transform = "scaleX(-1)";
+            forwardControlBarButton.ariaLabel = "Forward 10 Seconds";
+            rewindControlBarButton.parentNode.insertBefore(forwardControlBarButton, rewindControlBarButton.nextElementSibling);
+
+            // Add onclick handlers
+            [forwardDisplayButton, forwardControlBarButton].forEach(button => {
+                button.onclick = () => {
+                    jwp.seek(jwp.getPosition() + 10);
+                };
+            });
+        });
+
+        // Save the current playback position on time update using localStorage
+        jwp.on('time', function (event) {
+            localStorage.setItem(playbackKey, event.position); // Save current playback position permanently
+        });
+
+        // Clear the saved position if the video ends
+        jwp.on('complete', function () {
+            localStorage.removeItem(playbackKey); // Remove position when video is completed
+        });
+    </script>
+</body>
+
+</html>
